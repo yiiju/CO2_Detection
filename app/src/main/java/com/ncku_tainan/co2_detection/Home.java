@@ -8,6 +8,10 @@ import android.content.Intent;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.text.Html;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.widget.Toast;
 
 public class Home extends AppCompatActivity {
 
@@ -20,6 +24,20 @@ public class Home extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        ConnectivityManager cm;
+        cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo NetInfo = cm.getActiveNetworkInfo();
+
+        if (NetInfo == null) {
+            Toast.makeText(getApplicationContext(), "Offline status", Toast.LENGTH_SHORT).show();
+        } else {
+            if (NetInfo.isConnected()) {
+                Toast.makeText(getApplicationContext(), "Connect to the internet", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getApplicationContext(), "Offline", Toast.LENGTH_SHORT).show();
+            }
+        }
 
         getSupportActionBar().hide(); //隱藏標題
         //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN); //隱藏狀態
