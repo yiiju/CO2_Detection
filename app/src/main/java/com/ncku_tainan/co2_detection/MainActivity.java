@@ -19,8 +19,8 @@ public class MainActivity extends AppCompatActivity{
         getSupportActionBar().hide(); //隱藏標題
         //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN); //隱藏狀態
 
-        CO2_concentrration_button = (Button)findViewById(R.id.CO2_concentrration_button);
-        pH_button = (Button)findViewById(R.id.pH_button);
+        CO2_concentrration_button = findViewById(R.id.CO2_concentrration_button);
+        pH_button = findViewById(R.id.pH_button);
 
         CO2_concentrration_button.setOnClickListener(new View.OnClickListener() {
             @Override

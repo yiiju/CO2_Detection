@@ -12,6 +12,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.widget.Toast;
+import android.net.Uri;
 
 public class Home extends AppCompatActivity {
 
@@ -42,9 +43,18 @@ public class Home extends AppCompatActivity {
         getSupportActionBar().hide(); //隱藏標題
         //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN); //隱藏狀態
 
-        Button start_button = (Button)findViewById(R.id.start_button);
-        Button Aboutus_button = (Button)findViewById(R.id.Aboutus_button);
-        ImageView logo_image = (ImageView)findViewById(R.id.logo_image);
+        start_button = findViewById(R.id.start_button);
+        Aboutus_button = findViewById(R.id.Aboutus_button);
+        logo_image = findViewById(R.id.logo_image);
+
+        logo_image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String url="http://2018.igem.org/Team:NCKU_Tainan";
+                Intent ie = new Intent(Intent.ACTION_VIEW,Uri.parse(url));
+                startActivity(ie);
+            }
+        });
 
         start_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,7 +73,7 @@ public class Home extends AppCompatActivity {
             }
         });
 
-        TextView Description_textView = (TextView)findViewById(R.id.Description_textView);
+        Description_textView = findViewById(R.id.Description_textView);
         String source = "We designed a device piping the CO<small>2</small> and converted such carbon source to biomass by integrated a non-native Calvin–Benson–Bassham cycle into <i>E. coli</i>. " +
                 "“Of course” is a biological approach to “off” CO<small>2</small> emission through the RuBisCO and PRK genes from <i>Synchococcus sp</i>, " +
                 "which encode for major enzymes involved in carbon fixation, are incorporated into our chassis. " +
