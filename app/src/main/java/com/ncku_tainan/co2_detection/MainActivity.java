@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
-                intent.setClass(MainActivity.this , AboutUs.class);
+                intent.setClass(MainActivity.this , pH_value.class);
                 startActivity(intent);
             }
         });
