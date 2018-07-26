@@ -5,6 +5,8 @@ import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.widget.TextView;
@@ -30,6 +32,8 @@ import java.util.ArrayList;
 
 public class pH_value extends AppCompatActivity implements ChildEventListener {
 
+    private static final String TAG = "MainActivity";
+    SwipeRefreshLayout mySwipeRefreshLayout;
     private TextView textView;
     SimpleDateFormat sdf2 = new SimpleDateFormat("HH");
     String hour = sdf2.format(new java.util.Date());
@@ -48,6 +52,24 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
         setContentView(R.layout.activity_p_h_value);
         getSupportActionBar().hide(); //隱藏標題
         //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN); //隱藏狀態
+
+        mySwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
+        mySwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener()
+        {
+            @Override
+            public void onRefresh()
+            {
+                myUpdateOperation();
+            }
+        });
+
+        // 指定 progress animation 的顏色, 似乎沒有數量限制,
+        // 顏色會依順序循環播放
+        mySwipeRefreshLayout.setColorSchemeResources(android.R.color.holo_red_light,
+                android.R.color.holo_blue_light,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_purple);
 
         textView = findViewById(R.id.textView);
 
@@ -75,6 +97,18 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
         initChart();
         initData();
 
+    }
+
+    private void myUpdateOperation()
+    {
+        new Handler().postDelayed(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                mySwipeRefreshLayout.setRefreshing(false);
+            }
+        }, 3000);    // 3 秒
     }
 
     @Override
