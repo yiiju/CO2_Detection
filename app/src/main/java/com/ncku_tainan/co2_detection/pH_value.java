@@ -1,19 +1,43 @@
 package com.ncku_tainan.co2_detection;
 
+import android.content.Context;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
-public class pH_value  extends AppCompatActivity {
+public class pH_value extends AppCompatActivity implements ChildEventListener {
+
+    private TextView textView;
+    SimpleDateFormat sdf2 = new SimpleDateFormat("HH");
+    String hour = sdf2.format(new java.util.Date());
+    SimpleDateFormat sdf3 = new SimpleDateFormat("DD");
+    String date = sdf3.format(new java.util.Date());
+
+    ConnectivityManager cm;
+    NetworkInfo NetInfo;
 
     LineChart mChart;
 
@@ -25,10 +49,93 @@ public class pH_value  extends AppCompatActivity {
         getSupportActionBar().hide(); //隱藏標題
         //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN); //隱藏狀態
 
-        mChart = (LineChart) findViewById(R.id.chart);
-        mChart.setViewPortOffsets(10,10,10,10);
-        XAxis xAxis = mChart.getXAxis();
+        textView = findViewById(R.id.textView);
 
+        cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetInfo = cm.getActiveNetworkInfo();
+        if (NetInfo == null) {
+            Toast.makeText(getApplicationContext(), "Offline status", Toast.LENGTH_SHORT).show();
+            textView.setText("Not connected to the internet.");
+        } else {
+            if (NetInfo.isConnected()) {
+                Toast.makeText(getApplicationContext(), "Connect to the internet", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getApplicationContext(), "Offline", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat("MM");
+        String date = sdf.format(new java.util.Date());
+
+        FirebaseDatabase fireDB = FirebaseDatabase.getInstance();
+        DatabaseReference month = fireDB.getReference(date);
+        month.addChildEventListener(this);
+
+        mChart = (LineChart) findViewById(R.id.chart);
+        initChart();
+        initData();
+
+    }
+
+    @Override
+    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+        //int size = (int)dataSnapshot.getChildrenCount();
+        String pHvalue;
+        String source;
+        if (NetInfo == null) {
+            textView.setText("Not connected to the internet.");
+        }
+        else {
+            if (dataSnapshot.child(hour + ":25").child("pH").getValue() != null) {
+                pHvalue = dataSnapshot.child(hour + ":25").child("pH").getValue() + "";
+                source = "pH value：" + pHvalue;
+                textView.setText(Html.fromHtml(source));
+            } else {
+                source = "There is no data.";
+                textView.setText(source);
+            }
+        }
+    }
+    @Override
+    public void onChildRemoved(DataSnapshot dataSnapshot) { }
+    @Override
+    public void onChildChanged(DataSnapshot dataSnapshot, String s) { }
+    @Override
+    public void onChildMoved(DataSnapshot dataSnapshot, String s) { }
+    @Override
+    public void onCancelled(DatabaseError databaseError) { }
+
+    private void initChart() {
+        Description description = new Description();
+        description.setText("pH value");
+        description.setTextColor(Color.WHITE);
+        mChart.setDescription(description);
+        mChart.setBorderColor(Color.GRAY);
+        mChart.setBorderWidth(1f);
+        mChart.animateXY(1000, 1000);
+
+        //set description of the line
+        Legend legend = mChart.getLegend();
+        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
+        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
+        legend.setOrientation(Legend.LegendOrientation.HORIZONTAL);
+        legend.setForm(Legend.LegendForm.CIRCLE);
+        legend.setTextColor(Color.WHITE);
+        legend.setWordWrapEnabled(true);
+
+        XAxis xAxis = mChart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setAxisLineColor(Color.WHITE);
+        xAxis.setTextColor(Color.WHITE);
+
+        YAxis axisLeft = mChart.getAxisLeft();
+        axisLeft.setAxisLineColor(Color.WHITE);
+        axisLeft.setTextColor(Color.WHITE);
+        YAxis axisRight = mChart.getAxisRight();
+        axisRight.setEnabled(false);
+    }
+
+    private void initData() {
         ArrayList<String> xAXES = new ArrayList<>();
         ArrayList<Entry> yAXEScos = new ArrayList<>();
         double x = 0;
@@ -54,10 +161,9 @@ public class pH_value  extends AppCompatActivity {
         lineDataSet1.setLineWidth(2.5f);
 
         lineDataSets.add(lineDataSet1);
-
+        lineDataSet1.setHighLightColor(Color.WHITE);
         mChart.setData(new LineData(lineDataSets));
-        mChart.setVisibleXRangeMaximum(65f);
-
+        mChart.setVisibleXRangeMaximum(25f);
     }
 }
 
