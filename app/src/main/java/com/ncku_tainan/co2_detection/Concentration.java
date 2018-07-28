@@ -5,6 +5,8 @@ import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.widget.TextView;
@@ -30,14 +32,20 @@ import java.util.ArrayList;
 
 public class Concentration extends AppCompatActivity implements ChildEventListener {
 
+    SwipeRefreshLayout mySwipeRefreshLayout;
     private TextView textView;
+    SimpleDateFormat sdf = new SimpleDateFormat("MM");
+    String sdfmonth = sdf.format(new java.util.Date());
     SimpleDateFormat sdf2 = new SimpleDateFormat("HH");
     String hour = sdf2.format(new java.util.Date());
-    SimpleDateFormat sdf3 = new SimpleDateFormat("DD");
+    SimpleDateFormat sdf3 = new SimpleDateFormat("dd");
     String date = sdf3.format(new java.util.Date());
 
     ConnectivityManager cm;
     NetworkInfo NetInfo;
+
+    FirebaseDatabase fireDB;
+    DatabaseReference month;
 
     LineChart mChart;
 
@@ -45,11 +53,38 @@ public class Concentration extends AppCompatActivity implements ChildEventListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_concentration);
-        getSupportActionBar().hide(); //隱藏標題
-        //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN); //隱藏狀態
+        getSupportActionBar().hide(); // hide the title
+        //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN); // hide the state
 
         textView = findViewById(R.id.textView);
+        checkNet();
 
+        mySwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
+        mySwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener()
+        {
+            @Override
+            public void onRefresh()
+            {
+                myUpdateOperation();
+            }
+        });
+
+        // assign color of progress animation
+        // color will loop in order
+        mySwipeRefreshLayout.setColorSchemeResources(android.R.color.holo_red_light,
+                android.R.color.holo_blue_light,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_purple
+        );
+
+        getData();
+        mChart = (LineChart) findViewById(R.id.chart);
+        initChart();
+        initData();
+    }
+
+    private void checkNet() {
         cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         NetInfo = cm.getActiveNetworkInfo();
         if (NetInfo == null) {
@@ -62,18 +97,28 @@ public class Concentration extends AppCompatActivity implements ChildEventListen
                 Toast.makeText(getApplicationContext(), "Offline", Toast.LENGTH_SHORT).show();
             }
         }
-
-        SimpleDateFormat sdf = new SimpleDateFormat("MM");
-        String date = sdf.format(new java.util.Date());
-
-        FirebaseDatabase fireDB = FirebaseDatabase.getInstance();
-        DatabaseReference month = fireDB.getReference(date);
-        month.addChildEventListener(this);
-
-        mChart = (LineChart) findViewById(R.id.chart);
-        initChart();
-        initData();
     }
+
+    private void myUpdateOperation()
+    {
+        new Handler().postDelayed(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                mySwipeRefreshLayout.setRefreshing(false);
+                checkNet();
+                getData();
+            }
+        }, 3000);    // 3 second
+    }
+
+    private void getData() {
+        fireDB = FirebaseDatabase.getInstance();
+        month = fireDB.getReference(sdfmonth);
+        month.addChildEventListener(this);
+    }
+
     @Override
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
         //int size = (int)dataSnapshot.getChildrenCount();
@@ -83,7 +128,7 @@ public class Concentration extends AppCompatActivity implements ChildEventListen
             textView.setText("Not connected to the internet.");
         }
         else {
-            if (dataSnapshot.child(hour + ":25").child("concentration").getValue() != null) {
+            if ((dataSnapshot.getKey().equals(date)) && dataSnapshot.child(hour + ":25").child("concentration").getValue() != null) {
                 concentration = dataSnapshot.child(hour + ":25").child("concentration").getValue() + "";
                 source = "CO<small>2</small> concentration：" + concentration + "%";
                 textView.setText(Html.fromHtml(source));

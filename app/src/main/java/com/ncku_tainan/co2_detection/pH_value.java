@@ -32,16 +32,20 @@ import java.util.ArrayList;
 
 public class pH_value extends AppCompatActivity implements ChildEventListener {
 
-    private static final String TAG = "MainActivity";
     SwipeRefreshLayout mySwipeRefreshLayout;
     private TextView textView;
+    SimpleDateFormat sdf = new SimpleDateFormat("MM");
+    String sdfmonth = sdf.format(new java.util.Date());
     SimpleDateFormat sdf2 = new SimpleDateFormat("HH");
     String hour = sdf2.format(new java.util.Date());
-    SimpleDateFormat sdf3 = new SimpleDateFormat("DD");
+    SimpleDateFormat sdf3 = new SimpleDateFormat("dd");
     String date = sdf3.format(new java.util.Date());
 
     ConnectivityManager cm;
     NetworkInfo NetInfo;
+
+    FirebaseDatabase fireDB;
+    DatabaseReference month;
 
     LineChart mChart;
 
@@ -50,8 +54,11 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_p_h_value);
-        getSupportActionBar().hide(); //隱藏標題
-        //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN); //隱藏狀態
+        getSupportActionBar().hide(); // hide the title
+        //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN); // hide the state
+
+        textView = findViewById(R.id.textView);
+        checkNet();
 
         mySwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
         mySwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener()
@@ -63,16 +70,23 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
             }
         });
 
-        // 指定 progress animation 的顏色, 似乎沒有數量限制,
-        // 顏色會依順序循環播放
+        // assign color of progress animation
+        // color will loop in order
         mySwipeRefreshLayout.setColorSchemeResources(android.R.color.holo_red_light,
                 android.R.color.holo_blue_light,
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
-                android.R.color.holo_purple);
+                android.R.color.holo_purple
+        );
 
-        textView = findViewById(R.id.textView);
+        getData();
+        mChart = (LineChart) findViewById(R.id.chart);
+        initChart();
+        initData();
 
+    }
+
+    private void checkNet() {
         cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         NetInfo = cm.getActiveNetworkInfo();
         if (NetInfo == null) {
@@ -85,18 +99,12 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
                 Toast.makeText(getApplicationContext(), "Offline", Toast.LENGTH_SHORT).show();
             }
         }
+    }
 
-        SimpleDateFormat sdf = new SimpleDateFormat("MM");
-        String date = sdf.format(new java.util.Date());
-
-        FirebaseDatabase fireDB = FirebaseDatabase.getInstance();
-        DatabaseReference month = fireDB.getReference(date);
+    private void getData() {
+        fireDB = FirebaseDatabase.getInstance();
+        month = fireDB.getReference(sdfmonth);
         month.addChildEventListener(this);
-
-        mChart = (LineChart) findViewById(R.id.chart);
-        initChart();
-        initData();
-
     }
 
     private void myUpdateOperation()
@@ -107,8 +115,10 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
             public void run()
             {
                 mySwipeRefreshLayout.setRefreshing(false);
+                checkNet();
+                getData();
             }
-        }, 3000);    // 3 秒
+        }, 3000);    // 3 second
     }
 
     @Override
@@ -120,7 +130,7 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
             textView.setText("Not connected to the internet.");
         }
         else {
-            if (dataSnapshot.child(hour + ":25").child("pH").getValue() != null) {
+            if((dataSnapshot.getKey().equals(date)) && (dataSnapshot.child(hour + ":25").child("pH").getValue() != null)) {
                 pHvalue = dataSnapshot.child(hour + ":25").child("pH").getValue() + "";
                 source = "pH value：" + pHvalue;
                 textView.setText(Html.fromHtml(source));
