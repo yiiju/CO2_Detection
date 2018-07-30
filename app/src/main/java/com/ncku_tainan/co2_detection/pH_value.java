@@ -218,7 +218,7 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
                 if((dataSnapshot.getKey().equals(chDate)) && (dataSnapshot.child(chHour + ":25").child("pH").getValue() != null)) {
                     pHvalue = dataSnapshot.child(chHour + ":25").child("pH").getValue() + "";
                     xVals.add(sdfmonth + "/" + dataSnapshot.getKey() + " " + hour);
-                    yAXESpHvalue.add(new Entry(i, Integer.valueOf(pHvalue)));
+                    yAXESpHvalue.add(new Entry(i, Float.parseFloat(pHvalue)));
 
                 }
                 else {
