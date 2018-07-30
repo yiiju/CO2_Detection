@@ -40,6 +40,7 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
     String hour = sdf2.format(new java.util.Date());
     SimpleDateFormat sdf3 = new SimpleDateFormat("dd");
     String date = sdf3.format(new java.util.Date());
+    private static final String TAG = "test";
 
     ConnectivityManager cm;
     NetworkInfo NetInfo;
@@ -48,6 +49,8 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
     DatabaseReference month;
 
     LineChart mChart;
+    int temphour;
+    int tempdate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +85,6 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
         getData();
         mChart = (LineChart) findViewById(R.id.chart);
         initChart();
-        initData();
 
     }
 
@@ -123,7 +125,6 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
 
     @Override
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-        //int size = (int)dataSnapshot.getChildrenCount();
         String pHvalue;
         String source;
         if (NetInfo == null) {
@@ -139,6 +140,7 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
                 textView.setText(source);
             }
         }
+        initData(dataSnapshot);
     }
     @Override
     public void onChildRemoved(DataSnapshot dataSnapshot) { }
@@ -179,11 +181,62 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
         axisRight.setEnabled(false);
     }
 
-    private void initData() {
+    private void initData(DataSnapshot dataSnapshot) {
+        temphour = Integer.valueOf(hour);
+        tempdate = Integer.valueOf(date);
+        ArrayList<String> xVals = new ArrayList<String>();
+        ArrayList<Entry> yAXESpHvalue = new ArrayList<>();
+        String pHvalue;
+        String chDate;
+        String chHour;
+        int numDataPoints = 10;
+        if (NetInfo == null) {
+
+        }
+        else {
+            for(int i=0;i < numDataPoints-1 ;i++) {
+                if(tempdate < 10) {
+                    chDate = "0" + Integer.toString(tempdate);
+                } else chDate = Integer.toString(tempdate);
+                if(temphour < 10) {
+                    chHour = "0" + Integer.toString(temphour);
+                } else chHour = Integer.toString(temphour);
+                if(temphour > 1) temphour--;
+                else {
+                    temphour = 24;
+                    tempdate--;
+                }
+            }
+            for(int i = 0; i < numDataPoints; i++) {
+                if(tempdate < 10) {
+                    chDate = "0" + Integer.toString(tempdate);
+                } else chDate = Integer.toString(tempdate);
+                if(temphour < 10) {
+                    chHour = "0" + Integer.toString(temphour);
+                } else chHour = Integer.toString(temphour);
+
+                if((dataSnapshot.getKey().equals(chDate)) && (dataSnapshot.child(chHour + ":25").child("pH").getValue() != null)) {
+                    pHvalue = dataSnapshot.child(chHour + ":25").child("pH").getValue() + "";
+                    xVals.add(sdfmonth + "/" + dataSnapshot.getKey() + " " + hour);
+                    yAXESpHvalue.add(new Entry(i, Integer.valueOf(pHvalue)));
+
+                }
+                else {
+                    xVals.add(sdfmonth + "/" + dataSnapshot.getKey() + " " + hour);
+                    yAXESpHvalue.add(new Entry(i, 0));
+                }
+                if(temphour > 23) {
+                    temphour = 0;
+                    tempdate++;
+                }
+                else temphour++;
+            }
+        }
+/*
         ArrayList<String> xAXES = new ArrayList<>();
         ArrayList<Entry> yAXEScos = new ArrayList<>();
-        double x = 0;
-        int numDataPoints = 500;
+        //double x = 0;
+        //int numDataPoints = 500;
         for(int i=0;i<numDataPoints;i++) {
             float cosFunction = Float.parseFloat(String.valueOf(Math.cos(x)));
             x = x + 0.5;
@@ -194,9 +247,9 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
         for(int i=0;i<xAXES.size();i++) {
             xaxes[i] = xAXES.get(i).toString();
         }
+        */
         ArrayList<ILineDataSet> lineDataSets = new ArrayList<>();
-
-        LineDataSet lineDataSet1 = new LineDataSet(yAXEScos,"cos");
+        LineDataSet lineDataSet1 = new LineDataSet(yAXESpHvalue,"pH value");
         lineDataSet1.setDrawCircles(true);
         lineDataSet1.setColor(0xFFFFA036);
         lineDataSet1.setCircleColor(0xFFFFA036);
