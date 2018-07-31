@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
@@ -20,6 +21,7 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -48,6 +50,8 @@ public class Concentration extends AppCompatActivity implements ChildEventListen
     DatabaseReference month;
 
     LineChart mChart;
+    int temphour;
+    int tempdate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,16 +76,16 @@ public class Concentration extends AppCompatActivity implements ChildEventListen
         // assign color of progress animation
         // color will loop in order
         mySwipeRefreshLayout.setColorSchemeResources(android.R.color.holo_red_light,
-                android.R.color.holo_blue_light,
-                android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
+                android.R.color.holo_green_light,
+                android.R.color.holo_blue_light,
                 android.R.color.holo_purple
         );
 
         getData();
         mChart = (LineChart) findViewById(R.id.chart);
         initChart();
-        initData();
+        mChart.setNoDataText("No chart data available or press the screen to see chart.");
     }
 
     private void checkNet() {
@@ -121,7 +125,6 @@ public class Concentration extends AppCompatActivity implements ChildEventListen
 
     @Override
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-        //int size = (int)dataSnapshot.getChildrenCount();
         String concentration;
         String source;
         if (NetInfo == null) {
@@ -133,10 +136,11 @@ public class Concentration extends AppCompatActivity implements ChildEventListen
                 source = "CO<small>2</small> concentration：" + concentration + "%";
                 textView.setText(Html.fromHtml(source));
             } else {
-                source = "There is no data.";
+                source = "There is no real time data.";
                 textView.setText(source);
             }
         }
+        initData(dataSnapshot);
     }
     @Override
     public void onChildRemoved(DataSnapshot dataSnapshot) { }
@@ -177,24 +181,61 @@ public class Concentration extends AppCompatActivity implements ChildEventListen
         axisRight.setEnabled(false);
     }
 
-    private void initData() {
-        ArrayList<String> xAXES = new ArrayList<>();
-        ArrayList<Entry> yAXEScos = new ArrayList<>();
-        double x = 0;
-        int numDataPoints = 500;
-        for(int i=0;i<numDataPoints;i++) {
-            float cosFunction = Float.parseFloat(String.valueOf(Math.cos(x)));
-            x = x + 0.5;
-            yAXEScos.add(new Entry(i,cosFunction));
-            xAXES.add(i,String.valueOf(x));
+    private void initData(DataSnapshot dataSnapshot) {
+        temphour = Integer.valueOf(hour);
+        tempdate = Integer.valueOf(date);
+        final ArrayList<String> xVals = new ArrayList<>();
+        ArrayList<Entry> yAXESconcentration = new ArrayList<>();
+        String concentration;
+        String chDate;
+        String chHour;
+        int numDataPoints = 10;
+        if (NetInfo == null) {
+            mChart.setNoDataText("Not connected to the network.");
         }
-        String[] xaxes = new String[xAXES.size()];
-        for(int i=0;i<xAXES.size();i++) {
-            xaxes[i] = xAXES.get(i).toString();
+        else {
+            for(int i=0;i < numDataPoints-1 ;i++) {
+                if(tempdate < 10) {
+                    chDate = "0" + Integer.toString(tempdate);
+                } else chDate = Integer.toString(tempdate);
+                if(temphour < 10) {
+                    chHour = "0" + Integer.toString(temphour);
+                } else chHour = Integer.toString(temphour);
+                if(temphour > 1) temphour--;
+                else {
+                    temphour = 24;
+                    tempdate--;
+                }
+            }
+            for(int i = 0; i < numDataPoints; i++) {
+                if(tempdate < 10) {
+                    chDate = "0" + Integer.toString(tempdate);
+                } else chDate = Integer.toString(tempdate);
+                if(temphour < 10) {
+                    chHour = "0" + Integer.toString(temphour);
+                } else chHour = Integer.toString(temphour);
+
+                if((dataSnapshot.getKey().equals(chDate)) && (dataSnapshot.child(chHour + ":25").child("concentration").getValue() != null)) {
+                    concentration = dataSnapshot.child(chHour + ":25").child("concentration").getValue() + "";
+                    xVals.add(sdfmonth + "/" + chDate + " " + chHour);
+                    yAXESconcentration.add(new Entry(i, Float.parseFloat(concentration)));
+
+                }
+                else {
+                    xVals.add(sdfmonth + "/" + chDate + " " + chHour);
+                    yAXESconcentration.add(new Entry(i, 0));
+                }
+                if(temphour > 23) {
+                    temphour = 0;
+                    tempdate++;
+                }
+                else temphour++;
+            }
         }
+
         ArrayList<ILineDataSet> lineDataSets = new ArrayList<>();
 
-        LineDataSet lineDataSet1 = new LineDataSet(yAXEScos,"cos");
+        LineDataSet lineDataSet1 = new LineDataSet(yAXESconcentration,"CO2 concentration");
         lineDataSet1.setDrawCircles(true);
         lineDataSet1.setColor(0xFFFFA036);
         lineDataSet1.setCircleColor(0xFFFFA036);
@@ -206,5 +247,17 @@ public class Concentration extends AppCompatActivity implements ChildEventListen
         lineDataSet1.setHighLightColor(Color.WHITE);
         mChart.setData(new LineData(lineDataSets));
         mChart.setVisibleXRangeMaximum(25f);
+
+        // the labels that should be drawn on the XAxis
+        IAxisValueFormatter formatter = new IAxisValueFormatter() {
+
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+                return xVals.get((int) value);
+            }
+        };
+        XAxis xAxis = mChart.getXAxis();
+        xAxis.setGranularity(1f); // minimum axis-step (interval) is 1
+        xAxis.setValueFormatter(formatter);
     }
 }

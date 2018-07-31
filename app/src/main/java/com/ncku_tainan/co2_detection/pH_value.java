@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
@@ -20,6 +21,7 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -75,17 +77,18 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
 
         // assign color of progress animation
         // color will loop in order
-        mySwipeRefreshLayout.setColorSchemeResources(android.R.color.holo_red_light,
-                android.R.color.holo_blue_light,
-                android.R.color.holo_green_light,
+        mySwipeRefreshLayout.setColorSchemeResources(
+                android.R.color.holo_red_light,
                 android.R.color.holo_orange_light,
+                android.R.color.holo_green_light,
+                android.R.color.holo_blue_light,
                 android.R.color.holo_purple
         );
 
         getData();
         mChart = (LineChart) findViewById(R.id.chart);
         initChart();
-
+        mChart.setNoDataText("No chart data available or press the screen to see chart.");
     }
 
     private void checkNet() {
@@ -136,7 +139,7 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
                 source = "pH value：" + pHvalue;
                 textView.setText(Html.fromHtml(source));
             } else {
-                source = "There is no data.";
+                source = "There is no real time data.";
                 textView.setText(source);
             }
         }
@@ -184,14 +187,14 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
     private void initData(DataSnapshot dataSnapshot) {
         temphour = Integer.valueOf(hour);
         tempdate = Integer.valueOf(date);
-        ArrayList<String> xVals = new ArrayList<String>();
+        final ArrayList<String> xVals = new ArrayList<>();
         ArrayList<Entry> yAXESpHvalue = new ArrayList<>();
         String pHvalue;
         String chDate;
         String chHour;
         int numDataPoints = 10;
         if (NetInfo == null) {
-
+            mChart.setNoDataText("Not connected to the network.");
         }
         else {
             for(int i=0;i < numDataPoints-1 ;i++) {
@@ -217,12 +220,12 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
 
                 if((dataSnapshot.getKey().equals(chDate)) && (dataSnapshot.child(chHour + ":25").child("pH").getValue() != null)) {
                     pHvalue = dataSnapshot.child(chHour + ":25").child("pH").getValue() + "";
-                    xVals.add(sdfmonth + "/" + dataSnapshot.getKey() + " " + hour);
+                    xVals.add(sdfmonth + "/" + chDate + " " + chHour);
                     yAXESpHvalue.add(new Entry(i, Float.parseFloat(pHvalue)));
 
                 }
                 else {
-                    xVals.add(sdfmonth + "/" + dataSnapshot.getKey() + " " + hour);
+                    xVals.add(sdfmonth + "/" + chDate + " " + chHour);
                     yAXESpHvalue.add(new Entry(i, 0));
                 }
                 if(temphour > 23) {
@@ -232,23 +235,9 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
                 else temphour++;
             }
         }
-/*
-        ArrayList<String> xAXES = new ArrayList<>();
-        ArrayList<Entry> yAXEScos = new ArrayList<>();
-        //double x = 0;
-        //int numDataPoints = 500;
-        for(int i=0;i<numDataPoints;i++) {
-            float cosFunction = Float.parseFloat(String.valueOf(Math.cos(x)));
-            x = x + 0.5;
-            yAXEScos.add(new Entry(i,cosFunction));
-            xAXES.add(i,String.valueOf(x));
-        }
-        String[] xaxes = new String[xAXES.size()];
-        for(int i=0;i<xAXES.size();i++) {
-            xaxes[i] = xAXES.get(i).toString();
-        }
-        */
+
         ArrayList<ILineDataSet> lineDataSets = new ArrayList<>();
+
         LineDataSet lineDataSet1 = new LineDataSet(yAXESpHvalue,"pH value");
         lineDataSet1.setDrawCircles(true);
         lineDataSet1.setColor(0xFFFFA036);
@@ -259,8 +248,21 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
 
         lineDataSets.add(lineDataSet1);
         lineDataSet1.setHighLightColor(Color.WHITE);
-        mChart.setData(new LineData(lineDataSets));
+        LineData lineData = new LineData(lineDataSets);
+        mChart.setData(lineData);
         mChart.setVisibleXRangeMaximum(25f);
+
+        // the labels that should be drawn on the XAxis
+        IAxisValueFormatter formatter = new IAxisValueFormatter() {
+
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+                return xVals.get((int) value);
+            }
+        };
+        XAxis xAxis = mChart.getXAxis();
+        xAxis.setGranularity(1f); // minimum axis-step (interval) is 1
+        xAxis.setValueFormatter(formatter);
     }
 }
 
