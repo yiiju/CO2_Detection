@@ -1,24 +1,21 @@
 package com.ncku_tainan.co2_detection;
 
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.content.Intent;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.text.Html;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.widget.Toast;
 import android.net.Uri;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 public class Home extends AppCompatActivity {
 
-    private Button start_button;
-    private Button Aboutus_button;
-    private TextView Description_textView;
+    private ImageButton start_button;
+    private ImageButton Aboutus_button;
     private ImageView logo_image;
 
     @Override
@@ -73,12 +70,6 @@ public class Home extends AppCompatActivity {
             }
         });
 
-        Description_textView = findViewById(R.id.Description_textView);
-        String source = "We designed a device piping the CO<small>2</small> and converted such carbon source to biomass by integrated a non-native Calvin–Benson–Bassham cycle into <i>E. coli</i>. " +
-                "“Of course” is a biological approach to “off” CO<small>2</small> emission through the RuBisCO and PRK genes from <i>Synchococcus sp</i>, " +
-                "which encode for major enzymes involved in carbon fixation, are incorporated into our chassis. " +
-                "Industrial gases enter the pipe (inlet) at the bottom, flow through a ceramic nozzle and mix with liquids contained <i>E. coli</i> that consume CO<small>2</small> in the cylindrical container " +
-                "as well as sensing by P<small>asr</small> promoter for determining the CO<small>2</small> concentration with corresponding value of pH in terms of sfGFP. ";
-        Description_textView.setText(Html.fromHtml(source));
+
     }
 }

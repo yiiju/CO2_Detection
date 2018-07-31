@@ -51,6 +51,7 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
     DatabaseReference month;
 
     LineChart mChart;
+    XAxis xAxis;
     int temphour;
     int tempdate;
 
@@ -172,7 +173,7 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
         legend.setTextColor(Color.WHITE);
         legend.setWordWrapEnabled(true);
 
-        XAxis xAxis = mChart.getXAxis();
+        xAxis = mChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setAxisLineColor(Color.WHITE);
         xAxis.setTextColor(Color.WHITE);
@@ -260,7 +261,7 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
                 return xVals.get((int) value);
             }
         };
-        XAxis xAxis = mChart.getXAxis();
+        xAxis = mChart.getXAxis();
         xAxis.setGranularity(1f); // minimum axis-step (interval) is 1
         xAxis.setValueFormatter(formatter);
     }
