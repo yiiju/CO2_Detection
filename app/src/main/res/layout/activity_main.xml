@@ -1,66 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_weight="1"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="124dp"
+            android:layout_height="154dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="108dp"
+            app:srcCompat="@drawable/part" />
+
+        <ImageButton
+            android:id="@+id/CO2_concentrration_button"
+            android:layout_width="190dp"
+            android:layout_height="157dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="28dp"
             android:layout_weight="1"
-            android:orientation="horizontal">
+            android:background="@drawable/co2_white" />
 
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+        <ImageButton
+            android:id="@+id/pH_button"
+            android:layout_width="131dp"
+            android:layout_height="166dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="119dp"
+            android:layout_marginStart="-8dp"
+            android:layout_toEndOf="@+id/CO2_concentrration_button"
             android:layout_weight="1"
-            android:orientation="horizontal">
+            android:background="@drawable/phvalue" />
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/CO2_concentrration_button"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="CO2_concentration" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/pH_button"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="pH" />
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+        <ImageButton
+            android:id="@+id/temparature"
+            android:layout_width="143dp"
+            android:layout_height="212dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignStart="@+id/CO2_concentrration_button"
+            android:layout_marginBottom="21dp"
             android:layout_weight="1"
-            android:orientation="horizontal"></LinearLayout>
+            android:background="@drawable/mercury_thermometer" />
+    </RelativeLayout>
 
-    </LinearLayout>
-
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>

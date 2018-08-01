@@ -6,13 +6,13 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 public class AboutUs extends AppCompatActivity {
 
-    private Button Back_button;
+    private ImageButton Back_button;
     private ImageView wiki_image;
     private ImageView FB_image;
     private ImageView IG_image;
@@ -26,11 +26,10 @@ public class AboutUs extends AppCompatActivity {
         //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN); //隱藏狀態
 
         Description_textView = findViewById(R.id.Description_textView);
-        String source = "We designed a device piping the CO<small>2</small> and converted such carbon source to biomass by integrated a non-native Calvin–Benson–Bassham cycle into <i>E. coli</i>. " +
-                "“Of course” is a biological approach to “off” CO<small>2</small> emission through the RuBisCO and PRK genes from <i>Synchococcus sp</i>, " +
-                "which encode for major enzymes involved in carbon fixation, are incorporated into our chassis. " +
-                "Industrial gases enter the pipe (inlet) at the bottom, flow through a ceramic nozzle and mix with liquids contained <i>E. coli</i> that consume CO<small>2</small> in the cylindrical container " +
-                "as well as sensing by P<small>asr</small> promoter for determining the CO<small>2</small> concentration with corresponding value of pH in terms of sfGFP. ";
+        String source = "We designed a device piping the CO<small>2</small> and converted such carbon source to biomass " +
+                "by integrated a non-native Calvin–Benson–Bassham cycle into E. coli. " +
+                "Industrial gases enter the pipe (inlet) at the bottom, " +
+                "flow through a ceramic nozzle and mix with liquids contained E. coli that consume CO2 in the cylindrical container.";
         Description_textView.setText(Html.fromHtml(source));
 
         wiki_image = findViewById(R.id.wiki_image);

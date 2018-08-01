@@ -4,12 +4,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 
 public class MainActivity extends AppCompatActivity{
 
-    private Button CO2_concentrration_button;
-    private Button pH_button;
+    private ImageButton CO2_concentrration_button;
+    private ImageButton pH_button;
 
 
     @Override
