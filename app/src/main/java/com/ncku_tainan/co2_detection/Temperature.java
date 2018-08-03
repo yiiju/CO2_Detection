@@ -129,15 +129,15 @@ public class Temperature extends AppCompatActivity implements ChildEventListener
 
     @Override
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-        String pHvalue;
+        String temperature;
         String source;
         if (NetInfo == null) {
             textView.setText("Not connected to the internet.");
         }
         else {
             if((dataSnapshot.getKey().equals(date)) && (dataSnapshot.child(hour + ":25").child("temperature").getValue() != null)) {
-                pHvalue = dataSnapshot.child(hour + ":25").child("temperature").getValue() + "";
-                source = "pH value：" + pHvalue;
+                temperature = dataSnapshot.child(hour + ":25").child("temperature").getValue() + "";
+                source = "Temperature：" + temperature + "°C";
                 textView.setText(Html.fromHtml(source));
             } else {
                 source = "There is no real time data.";
