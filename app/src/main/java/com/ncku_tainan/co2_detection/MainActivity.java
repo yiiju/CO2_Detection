@@ -10,6 +10,7 @@ public class MainActivity extends AppCompatActivity{
 
     private ImageButton CO2_concentrration_button;
     private ImageButton pH_button;
+    private ImageButton temperature_button;
 
 
     @Override
@@ -22,6 +23,7 @@ public class MainActivity extends AppCompatActivity{
 
         CO2_concentrration_button = findViewById(R.id.CO2_concentrration_button);
         pH_button = findViewById(R.id.pH_button);
+        temperature_button = findViewById(R.id.temperature_button);
 
         CO2_concentrration_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -36,6 +38,14 @@ public class MainActivity extends AppCompatActivity{
             public void onClick(View v) {
                 Intent intent = new Intent();
                 intent.setClass(MainActivity.this , pH_value.class);
+                startActivity(intent);
+            }
+        });
+        temperature_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setClass(MainActivity.this , Temperature.class);
                 startActivity(intent);
             }
         });
