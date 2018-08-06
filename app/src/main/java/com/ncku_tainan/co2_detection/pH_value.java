@@ -1,11 +1,14 @@
 package com.ncku_tainan.co2_detection;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
@@ -139,6 +142,9 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
                 pHvalue = dataSnapshot.child(hour + ":25").child("pH").getValue() + "";
                 source = "pH value：" + pHvalue;
                 textView.setText(Html.fromHtml(source));
+                if( Float.parseFloat(pHvalue) > 7) {
+                    noticed();
+                }
             } else {
                 source = "There is no real time data.";
                 textView.setText(source);
@@ -265,5 +271,20 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
         xAxis.setGranularity(1f); // minimum axis-step (interval) is 1
         xAxis.setValueFormatter(formatter);
     }
-}
 
+    private void noticed() {
+            NotificationManager manager = (NotificationManager)
+                getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(this);
+        builder.setDefaults(Notification.DEFAULT_ALL);
+        builder.setSmallIcon(R.drawable.wiki_logo)
+                .setWhen(System.currentTimeMillis())
+                .setContentTitle("pH Value Warning")
+                .setContentText("The value of pH is abnormal in " + hour + " o'clock.");
+
+        Notification notification = builder.build();
+        manager.notify(1, notification);
+        //manager.cancel(1);
+    }
+}

@@ -1,11 +1,14 @@
 package com.ncku_tainan.co2_detection;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
@@ -135,6 +138,9 @@ public class Concentration extends AppCompatActivity implements ChildEventListen
                 concentration = dataSnapshot.child(hour + ":25").child("concentration").getValue() + "";
                 source = "CO<small>2</small> concentration：" + concentration + "%";
                 textView.setText(Html.fromHtml(source));
+                if(Float.parseFloat(concentration) > 6) {
+                    noticed();
+                }
             } else {
                 source = "There is no real time data.";
                 textView.setText(source);
@@ -259,5 +265,22 @@ public class Concentration extends AppCompatActivity implements ChildEventListen
         XAxis xAxis = mChart.getXAxis();
         xAxis.setGranularity(1f); // minimum axis-step (interval) is 1
         xAxis.setValueFormatter(formatter);
+    }
+
+    private void noticed() {
+        NotificationManager manager = (NotificationManager)
+                getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(this);
+        builder.setDefaults(Notification.DEFAULT_ALL);
+        String text = "CO<sub>2</sub> Concentration";
+        builder.setSmallIcon(R.drawable.wiki_logo)
+                .setWhen(System.currentTimeMillis())
+                .setContentTitle(Html.fromHtml(text) + " Warning")
+                .setContentText(Html.fromHtml(text) + " is abnormal in " + hour + " o'clock.");
+
+        Notification notification = builder.build();
+        manager.notify(3, notification);
+        //manager.cancel(1);
     }
 }
