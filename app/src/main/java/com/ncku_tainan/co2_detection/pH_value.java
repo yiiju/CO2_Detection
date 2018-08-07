@@ -2,7 +2,9 @@ package com.ncku_tainan.co2_detection;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -142,7 +144,7 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
                 pHvalue = dataSnapshot.child(hour + ":25").child("pH").getValue() + "";
                 source = "pH value：" + pHvalue;
                 textView.setText(Html.fromHtml(source));
-                if( Float.parseFloat(pHvalue) > 7) {
+                if(Float.parseFloat(pHvalue) > 7) {
                     noticed();
                 }
             } else {
@@ -273,17 +275,24 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
     }
 
     private void noticed() {
-            NotificationManager manager = (NotificationManager)
+        NotificationManager manager = (NotificationManager)
                 getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(this);
+        Intent notificationIntent = new Intent(this,pH_value.class);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent contentIntent = PendingIntent.getActivity(this,0,notificationIntent,0);
+
         builder.setDefaults(Notification.DEFAULT_ALL);
         builder.setSmallIcon(R.drawable.wiki_logo)
                 .setWhen(System.currentTimeMillis())
                 .setContentTitle("pH Value Warning")
-                .setContentText("The value of pH is abnormal in " + hour + " o'clock.");
+                .setContentText("The value of pH is abnormal in " + hour + " o'clock.")
+                .setContentIntent(contentIntent);
 
         Notification notification = builder.build();
+        // The notification will disappear automatically when user clicks it
+        notification.flags |= Notification.FLAG_AUTO_CANCEL;
         manager.notify(1, notification);
         //manager.cancel(1);
     }

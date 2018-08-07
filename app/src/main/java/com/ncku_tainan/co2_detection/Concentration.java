@@ -2,7 +2,9 @@ package com.ncku_tainan.co2_detection;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -272,14 +274,21 @@ public class Concentration extends AppCompatActivity implements ChildEventListen
                 getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(this);
+        Intent notificationIntent = new Intent(this,Concentration.class);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent contentIntent = PendingIntent.getActivity(this,0,notificationIntent,0);
+
         builder.setDefaults(Notification.DEFAULT_ALL);
         String text = "CO<sub>2</sub> Concentration";
         builder.setSmallIcon(R.drawable.wiki_logo)
                 .setWhen(System.currentTimeMillis())
                 .setContentTitle(Html.fromHtml(text) + " Warning")
-                .setContentText(Html.fromHtml(text) + " is abnormal in " + hour + " o'clock.");
+                .setContentText(Html.fromHtml(text) + " is abnormal in " + hour + " o'clock.")
+                .setContentIntent(contentIntent);
 
         Notification notification = builder.build();
+        // The notification will disappear automatically when user clicks it
+        notification.flags |= Notification.FLAG_AUTO_CANCEL;
         manager.notify(3, notification);
         //manager.cancel(1);
     }
