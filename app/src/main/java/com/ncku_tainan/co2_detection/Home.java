@@ -23,6 +23,9 @@ public class Home extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        Intent intent = new Intent(Home.this, MyService.class);
+        startService(intent);
+
         ConnectivityManager cm;
         cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo NetInfo = cm.getActiveNetworkInfo();
