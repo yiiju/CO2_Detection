@@ -7,6 +7,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -23,8 +24,16 @@ public class Home extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        Intent intent = new Intent(Home.this, MyService.class);
-        startService(intent);
+        final GlobalVariable checkSwitch = (GlobalVariable)getApplicationContext();
+        if(checkSwitch.getCheckSwitch()) {
+            Log.d("asd", "onCreate() returned: " + checkSwitch.getCheckSwitch());
+            Intent intent = new Intent(Home.this, MyService.class);
+            startService(intent);
+        } else {
+            Log.d("asd", "onCreate() returned: " + checkSwitch.getCheckSwitch());
+            Intent intent = new Intent(Home.this, MyService.class);
+            stopService(intent);
+        }
 
         ConnectivityManager cm;
         cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
