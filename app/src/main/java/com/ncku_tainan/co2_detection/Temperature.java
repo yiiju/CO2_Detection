@@ -47,6 +47,10 @@ public class Temperature extends AppCompatActivity implements ChildEventListener
     String hour = sdf2.format(new java.util.Date());
     SimpleDateFormat sdf3 = new SimpleDateFormat("dd");
     String date = sdf3.format(new java.util.Date());
+    SimpleDateFormat sdf4 = new SimpleDateFormat("mm");
+    String second = sdf4.format(new java.util.Date());
+    SimpleDateFormat sdf5 = new SimpleDateFormat("ss");
+    String minute = sdf5.format(new java.util.Date());
     private static final String TAG = "test";
 
     ConnectivityManager cm;
@@ -59,6 +63,8 @@ public class Temperature extends AppCompatActivity implements ChildEventListener
     XAxis xAxis;
     int temphour;
     int tempdate;
+    int tempmin;
+    int tempsec;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,11 +146,11 @@ public class Temperature extends AppCompatActivity implements ChildEventListener
             textView.setText("Not connected to the internet.");
         }
         else {
-            if((dataSnapshot.getKey().equals(date)) && (dataSnapshot.child(hour + ":25").child("temperature").getValue() != null)) {
-                temperature = dataSnapshot.child(hour + ":25").child("temperature").getValue() + "";
+            if((dataSnapshot.getKey().equals(date)) && (dataSnapshot.child(hour + ":" + minute + ":" + second).child("temperature").getValue() != null)) {
+                temperature = dataSnapshot.child(hour + ":" + minute + ":" + second).child("temperature").getValue() + "";
                 source = "Temperature：" + temperature + "°C";
                 textView.setText(Html.fromHtml(source));
-                if(Float.parseFloat(temperature) > 38) {
+                if(Float.parseFloat(temperature) > 40 || Float.parseFloat(temperature) < 22) {
                     noticed();
                 }
             } else {
@@ -196,30 +202,58 @@ public class Temperature extends AppCompatActivity implements ChildEventListener
     private void initData(DataSnapshot dataSnapshot) {
         temphour = Integer.valueOf(hour);
         tempdate = Integer.valueOf(date);
+        tempmin = Integer.valueOf(minute);
+        tempsec = Integer.valueOf(second);
         final ArrayList<String> xVals = new ArrayList<>();
         ArrayList<Entry> yAXEStemperature = new ArrayList<>();
         String temperature;
         String chDate;
         String chHour;
-        int numDataPoints = 10;
+        String chMin;
+        String chSec;
+        int numDataPoints = 100;
         if (NetInfo == null) {
             mChart.setNoDataText("Not connected to the network.");
         }
         else {
             for(int i=0;i < numDataPoints-1 ;i++) {
+                if(tempsec < 10) {
+                    chSec = "0" + Integer.toString(tempsec);
+                } else chSec = Integer.toString(tempsec);
+                if(tempmin < 10) {
+                    chMin = "0" + Integer.toString(tempmin);
+                } else chMin = Integer.toString(tempmin);
                 if(tempdate < 10) {
                     chDate = "0" + Integer.toString(tempdate);
                 } else chDate = Integer.toString(tempdate);
                 if(temphour < 10) {
                     chHour = "0" + Integer.toString(temphour);
                 } else chHour = Integer.toString(temphour);
-                if(temphour > 1) temphour--;
+                if(tempsec > 10) tempsec -= 10;
                 else {
-                    temphour = 24;
-                    tempdate--;
+                    if(tempmin > 1) {
+                        tempsec = 50;
+                        tempmin--;
+                    }
+                    else {
+                        if(temphour > 1) {
+                            tempmin = 59;
+                            temphour--;
+                        }
+                        else {
+                            temphour = 23;
+                            tempdate--;
+                        }
+                    }
                 }
             }
             for(int i = 0; i < numDataPoints; i++) {
+                if(tempsec < 10) {
+                    chSec = "0" + Integer.toString(tempsec);
+                } else chSec = Integer.toString(tempsec);
+                if(tempmin < 10) {
+                    chMin = "0" + Integer.toString(tempmin);
+                } else chMin = Integer.toString(tempmin);
                 if(tempdate < 10) {
                     chDate = "0" + Integer.toString(tempdate);
                 } else chDate = Integer.toString(tempdate);
@@ -227,21 +261,31 @@ public class Temperature extends AppCompatActivity implements ChildEventListener
                     chHour = "0" + Integer.toString(temphour);
                 } else chHour = Integer.toString(temphour);
 
-                if((dataSnapshot.getKey().equals(chDate)) && (dataSnapshot.child(chHour + ":25").child("temperature").getValue() != null)) {
-                    temperature = dataSnapshot.child(chHour + ":25").child("temperature").getValue() + "";
-                    xVals.add(sdfmonth + "/" + chDate + " " + chHour);
+                if((dataSnapshot.getKey().equals(chDate)) && (dataSnapshot.child(chHour + ":" + chMin + ":" + chSec).child("temperature").getValue() != null)) {
+                    temperature = dataSnapshot.child(chHour + ":" + chMin + ":" + chSec).child("temperature").getValue() + "";
+                    xVals.add(chHour + ":" + chMin + ":" + chSec);
                     yAXEStemperature.add(new Entry(i, Float.parseFloat(temperature)));
 
                 }
                 else {
-                    xVals.add(sdfmonth + "/" + chDate + " " + chHour);
+                    xVals.add(chHour + ":" + chMin + ":" + chSec);
                     yAXEStemperature.add(new Entry(i, 0));
                 }
-                if(temphour > 23) {
-                    temphour = 0;
-                    tempdate++;
+                if(tempsec < 50) tempsec += 10;
+                else {
+                    if (tempmin < 59) {
+                        tempsec = 00;
+                        tempmin++;
+                    } else {
+                        if (temphour < 23) {
+                            tempmin = 00;
+                            temphour++;
+                        } else {
+                            temphour = 00;
+                            tempdate++;
+                        }
+                    }
                 }
-                else temphour++;
             }
         }
 

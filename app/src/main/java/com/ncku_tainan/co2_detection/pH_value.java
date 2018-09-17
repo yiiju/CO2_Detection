@@ -14,6 +14,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
+import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,6 +48,10 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
     String hour = sdf2.format(new java.util.Date());
     SimpleDateFormat sdf3 = new SimpleDateFormat("dd");
     String date = sdf3.format(new java.util.Date());
+    SimpleDateFormat sdf4 = new SimpleDateFormat("ss");
+    String second = sdf4.format(new java.util.Date());
+    SimpleDateFormat sdf5 = new SimpleDateFormat("mm");
+    String minute = sdf5.format(new java.util.Date());
     private static final String TAG = "test";
 
     ConnectivityManager cm;
@@ -59,6 +64,8 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
     XAxis xAxis;
     int temphour;
     int tempdate;
+    int tempmin;
+    int tempsec;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,11 +147,15 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
             textView.setText("Not connected to the internet.");
         }
         else {
-            if((dataSnapshot.getKey().equals(date)) && (dataSnapshot.child(hour + ":25").child("pH").getValue() != null)) {
-                pHvalue = dataSnapshot.child(hour + ":25").child("pH").getValue() + "";
+            if((dataSnapshot.getKey().equals(date)) && (dataSnapshot.child(hour + ":" + minute + ":" + second).child("pH").getValue() != null)) {
+                pHvalue = dataSnapshot.child(hour + ":" + minute + ":" + second).child("pH").getValue() + "";
                 source = "pH value：" + pHvalue;
                 textView.setText(Html.fromHtml(source));
-                if(Float.parseFloat(pHvalue) > 7) {
+                if(Float.parseFloat(pHvalue) > 7.5 || Float.parseFloat(pHvalue) < 6) {
+                    noticed();
+                    Log.d(TAG, "onChildAdded() returned: " + pHvalue);
+                }
+                if(Float.parseFloat(pHvalue) < 6) {
                     noticed();
                 }
             } else {
@@ -153,6 +164,7 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
             }
         }
         initData(dataSnapshot);
+        initChart();
     }
     @Override
     public void onChildRemoved(DataSnapshot dataSnapshot) { }
@@ -196,52 +208,89 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
     private void initData(DataSnapshot dataSnapshot) {
         temphour = Integer.valueOf(hour);
         tempdate = Integer.valueOf(date);
+        tempmin = Integer.valueOf(minute);
+        tempsec = Integer.valueOf(second);
         final ArrayList<String> xVals = new ArrayList<>();
         ArrayList<Entry> yAXESpHvalue = new ArrayList<>();
         String pHvalue;
-        String chDate;
+        String chMin;
         String chHour;
-        int numDataPoints = 10;
+        String chSec;
+        String chDate;
+        int numDataPoints = 100;
         if (NetInfo == null) {
             mChart.setNoDataText("Not connected to the network.");
         }
         else {
             for(int i=0;i < numDataPoints-1 ;i++) {
-                if(tempdate < 10) {
-                    chDate = "0" + Integer.toString(tempdate);
-                } else chDate = Integer.toString(tempdate);
+                if(tempsec < 10) {
+                    chSec = "0" + Integer.toString(tempsec);
+                } else chSec = Integer.toString(tempsec);
+                if(tempmin < 10) {
+                    chMin = "0" + Integer.toString(tempmin);
+                } else chMin = Integer.toString(tempmin);
                 if(temphour < 10) {
                     chHour = "0" + Integer.toString(temphour);
                 } else chHour = Integer.toString(temphour);
-                if(temphour > 1) temphour--;
+                if(tempdate < 10) {
+                    chDate = "0" + Integer.toString(tempdate);
+                } else chDate = Integer.toString(tempdate);
+                if(tempsec > 10) tempsec -= 10;
                 else {
-                    temphour = 24;
-                    tempdate--;
+                    if(tempmin > 1) {
+                        tempsec = 50;
+                        tempmin--;
+                    }
+                    else {
+                        if(temphour > 1) {
+                            tempmin = 59;
+                            temphour--;
+                        }
+                        else {
+                            temphour = 23;
+                            tempdate--;
+                        }
+                    }
                 }
             }
             for(int i = 0; i < numDataPoints; i++) {
-                if(tempdate < 10) {
-                    chDate = "0" + Integer.toString(tempdate);
-                } else chDate = Integer.toString(tempdate);
+                if(tempsec < 10) {
+                    chSec = "0" + Integer.toString(tempsec);
+                } else chSec = Integer.toString(tempsec);
+                if(tempmin < 10) {
+                    chMin = "0" + Integer.toString(tempmin);
+                } else chMin = Integer.toString(tempmin);
                 if(temphour < 10) {
                     chHour = "0" + Integer.toString(temphour);
                 } else chHour = Integer.toString(temphour);
+                if(tempdate < 10) {
+                    chDate = "0" + Integer.toString(tempdate);
+                } else chDate = Integer.toString(tempdate);
 
-                if((dataSnapshot.getKey().equals(chDate)) && (dataSnapshot.child(chHour + ":25").child("pH").getValue() != null)) {
-                    pHvalue = dataSnapshot.child(chHour + ":25").child("pH").getValue() + "";
-                    xVals.add(sdfmonth + "/" + chDate + " " + chHour);
+                if((dataSnapshot.getKey().equals(chDate)) && (dataSnapshot.child(chHour + ":" + chMin + ":" + chSec).child("pH").getValue() != null)) {
+                    pHvalue = dataSnapshot.child(chHour + ":" + chMin + ":" + chSec).child("pH").getValue() + "";
+                    xVals.add(chHour + ":" + chMin + ":" + chSec);
                     yAXESpHvalue.add(new Entry(i, Float.parseFloat(pHvalue)));
-
                 }
                 else {
-                    xVals.add(sdfmonth + "/" + chDate + " " + chHour);
+                    xVals.add(chHour + ":" + chMin + ":" + chSec);
                     yAXESpHvalue.add(new Entry(i, 0));
                 }
-                if(temphour > 23) {
-                    temphour = 0;
-                    tempdate++;
+                if(tempsec < 50) tempsec += 10;
+                else {
+                    if (tempmin < 59) {
+                        tempsec = 00;
+                        tempmin++;
+                    } else {
+                        if (temphour < 23) {
+                            tempmin = 00;
+                            temphour++;
+                        } else {
+                            temphour = 00;
+                            tempdate++;
+                        }
+                    }
                 }
-                else temphour++;
             }
         }
 
