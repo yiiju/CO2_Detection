@@ -29,10 +29,14 @@ public class MyService extends Service implements ChildEventListener {
     String hour = sdf2.format(new java.util.Date());
     SimpleDateFormat sdf3 = new SimpleDateFormat("dd");
     String date = sdf3.format(new java.util.Date());
+    SimpleDateFormat sdf4 = new SimpleDateFormat("ss");
+    String second = sdf4.format(new java.util.Date());
+    SimpleDateFormat sdf5 = new SimpleDateFormat("mm");
+    String minute = sdf5.format(new java.util.Date());
     boolean inNoticed;
     boolean inNoticed2;
     boolean inNoticed3;
-    String TAG = "ttt";
+    String TAG = "MyService";
 
     @Override
     public void onCreate() {
@@ -66,9 +70,9 @@ public class MyService extends Service implements ChildEventListener {
                 String pHvalue;
                 String concentration;
                 String temperature;
-                if ((dataSnapshot.getKey().equals(date)) && (dataSnapshot.child(hour + ":25").child("pH").getValue() != null)) {
-                    pHvalue = dataSnapshot.child(hour + ":25").child("pH").getValue() + "";
-                    if (Float.parseFloat(pHvalue) > 7) {
+                if ((dataSnapshot.getKey().equals(date)) && (dataSnapshot.child(hour + ":" + minute + ":" + second).child("pH").getValue() != null)) {
+                    pHvalue = dataSnapshot.child(hour + ":" + minute + ":" + second).child("pH").getValue() + "";
+                    if (Float.parseFloat(pHvalue) > 7.5 ||  Float.parseFloat(pHvalue) < 6) {
                         inNoticed = true;
                         Log.d(TAG, "onChildAdded() returned pH warning: " + Float.parseFloat(pHvalue));
                         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -76,7 +80,7 @@ public class MyService extends Service implements ChildEventListener {
                         builder.setSmallIcon(R.drawable.wiki_logo)
                                 .setWhen(System.currentTimeMillis())
                                 .setContentTitle("pH Value Warning")
-                                .setContentText("The value of pH is abnormal in "+ hour + " o'clock.")
+                                .setContentText("The value of pH is abnormal in "+ hour + ":" + minute + ":" + second + ".")
                                 .setContentIntent(contentIntent);
 
                         Notification notification = builder.build();
@@ -90,9 +94,9 @@ public class MyService extends Service implements ChildEventListener {
                         manager.cancel(1);
                     }
                 }
-                if ((dataSnapshot.getKey().equals(date)) && (dataSnapshot.child(hour + ":25").child("concentration").getValue() != null)) {
-                    concentration = dataSnapshot.child(hour + ":25").child("concentration").getValue() + "";
-                    if (Float.parseFloat(concentration) > 7) {
+                if ((dataSnapshot.getKey().equals(date)) && (dataSnapshot.child(hour + ":" + minute + ":" + second).child("concentration").getValue() != null)) {
+                    concentration = dataSnapshot.child(hour + ":" + minute + ":" + second).child("concentration").getValue() + "";
+                    if (Float.parseFloat(concentration) > 5) {
                         inNoticed = true;
                         Log.d(TAG, "onChildAdded() returned concentration warning: " + Float.parseFloat(concentration));
                         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -100,7 +104,7 @@ public class MyService extends Service implements ChildEventListener {
                         builder.setSmallIcon(R.drawable.wiki_logo)
                                 .setWhen(System.currentTimeMillis())
                                 .setContentTitle("CO2 Concentration Warning")
-                                .setContentText("The concentration of CO2 is abnormal in "+ hour + " o'clock.")
+                                .setContentText("The concentration of CO2 is abnormal in "+ hour + ":" + minute + ":" + second + ".")
                                 .setContentIntent(contentIntent);
 
                         Notification notification = builder.build();
@@ -116,9 +120,9 @@ public class MyService extends Service implements ChildEventListener {
                 } else {
                     Log.d(TAG, "onChildAdded() returned no data: " + inNoticed);
                 }
-                if ((dataSnapshot.getKey().equals(date)) && (dataSnapshot.child(hour + ":25").child("temperature").getValue() != null)) {
-                    temperature = dataSnapshot.child(hour + ":25").child("temperature").getValue() + "";
-                    if (Float.parseFloat(temperature) > 7) {
+                if ((dataSnapshot.getKey().equals(date)) && (dataSnapshot.child(hour + ":" + minute + ":" + second).child("temperature").getValue() != null)) {
+                    temperature = dataSnapshot.child(hour + ":" + minute + ":" + second).child("temperature").getValue() + "";
+                    if (Float.parseFloat(temperature) > 40 || Float.parseFloat(temperature) < 22) {
                         inNoticed2 = true;
                         Log.d(TAG, "onChildAdded() returned temperature warning: " + Float.parseFloat(temperature));
                         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -126,7 +130,7 @@ public class MyService extends Service implements ChildEventListener {
                         builder.setSmallIcon(R.drawable.wiki_logo)
                                 .setWhen(System.currentTimeMillis())
                                 .setContentTitle("Temperature Warning")
-                                .setContentText("The temperature is abnormal in "+ hour + " o'clock.")
+                                .setContentText("The temperature is abnormal in "+ hour + ":" + minute + ":" + second + ".")
                                 .setContentIntent(contentIntent);
 
                         Notification notification = builder.build();
@@ -148,17 +152,17 @@ public class MyService extends Service implements ChildEventListener {
                 String pHvalue;
                 String concentration;
                 String temperature;
-                if ((dataSnapshot.getKey().equals(date)) && (dataSnapshot.child(hour + ":25").child("pH").getValue() != null)) {
-                    pHvalue = dataSnapshot.child(hour + ":25").child("pH").getValue() + "";
-                    if(Float.parseFloat(pHvalue) > 7) {
+                if ((dataSnapshot.getKey().equals(date)) && (dataSnapshot.child(hour + ":" + minute + ":" + second).child("pH").getValue() != null)) {
+                    pHvalue = dataSnapshot.child(hour + ":" + minute + ":" + second).child("pH").getValue() + "";
+                    if(Float.parseFloat(pHvalue) > 7.5 || Float.parseFloat(pHvalue) < 6) {
                         inNoticed3 = true;
-                        Log.d(TAG, "onChildAdded() returned pH warning: " + Float.parseFloat(pHvalue));
+                        Log.d(TAG, "onChildChanged() returned pH warning: " + Float.parseFloat(pHvalue));
                         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         builder.setDefaults(Notification.DEFAULT_ALL);
                         builder.setSmallIcon(R.drawable.wiki_logo)
                                 .setWhen(System.currentTimeMillis())
                                 .setContentTitle("pH Value Warning")
-                                .setContentText("The value of pH is abnormal in " + hour + " o'clock.")
+                                .setContentText("The value of pH is abnormal in " + hour + ":" + minute + ":" + second + ".")
                                 .setContentIntent(contentIntent);
 
                         Notification notification = builder.build();
@@ -169,24 +173,24 @@ public class MyService extends Service implements ChildEventListener {
                     }
                     else {
                         inNoticed3 = false;
-                        Log.d(TAG, "onChildAdded() returned pH no warning: " + Float.parseFloat(pHvalue));
+                        Log.d(TAG, "onChildChanged() returned pH no warning: " + Float.parseFloat(pHvalue));
                         manager.cancel(1);
                     }
                 }
                 else {
-                    Log.d(TAG, "onChildAdded() returned no data: " + inNoticed3);
+                    Log.d(TAG, "onChildChanged() returned no data: " + inNoticed3);
                 }
-                if ((dataSnapshot.getKey().equals(date)) && (dataSnapshot.child(hour + ":25").child("concentration").getValue() != null)) {
-                    concentration = dataSnapshot.child(hour + ":25").child("concentration").getValue() + "";
-                    if(Float.parseFloat(concentration) > 7) {
+                if ((dataSnapshot.getKey().equals(date)) && (dataSnapshot.child(hour + ":" + minute + ":" + second).child("concentration").getValue() != null)) {
+                    concentration = dataSnapshot.child(hour + ":" + minute + ":" + second).child("concentration").getValue() + "";
+                    if(Float.parseFloat(concentration) > 5) {
                         inNoticed2 = true;
-                        Log.d(TAG, "onChildAdded() returned concentration warning: " + Float.parseFloat(concentration));
+                        Log.d(TAG, "onChildChanged() returned concentration warning: " + Float.parseFloat(concentration));
                         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         builder.setDefaults(Notification.DEFAULT_ALL);
                         builder.setSmallIcon(R.drawable.wiki_logo)
                                 .setWhen(System.currentTimeMillis())
                                 .setContentTitle("Concentration Warning")
-                                .setContentText("The value of concentration is abnormal in " + hour + " o'clock.")
+                                .setContentText("The value of concentration is abnormal in " + hour + ":" + minute + ":" + second + ".")
                                 .setContentIntent(contentIntent);
 
                         Notification notification = builder.build();
@@ -197,24 +201,24 @@ public class MyService extends Service implements ChildEventListener {
                     }
                     else {
                         inNoticed2 = false;
-                        Log.d(TAG, "onChildAdded() returned concentration no warning: " + Float.parseFloat(concentration));
+                        Log.d(TAG, "onChildChanged() returned concentration no warning: " + Float.parseFloat(concentration));
                         manager.cancel(2);
                     }
                 }
                 else {
-                    Log.d(TAG, "onChildAdded() returned no data: " + inNoticed2);
+                    Log.d(TAG, "onChildChanged() returned no data: " + inNoticed2);
                 }
-                if ((dataSnapshot.getKey().equals(date)) && (dataSnapshot.child(hour + ":25").child("temperature").getValue() != null)) {
-                    temperature = dataSnapshot.child(hour + ":25").child("temperature").getValue() + "";
-                    if(Float.parseFloat(temperature) > 7) {
+                if ((dataSnapshot.getKey().equals(date)) && (dataSnapshot.child(hour + ":" + minute + ":" + second).child("temperature").getValue() != null)) {
+                    temperature = dataSnapshot.child(hour + ":" + minute + ":" + second).child("temperature").getValue() + "";
+                    if(Float.parseFloat(temperature) > 40 || Float.parseFloat(temperature) < 22) {
                         inNoticed3 = true;
-                        Log.d(TAG, "onChildAdded() returned temperature warning: " + Float.parseFloat(temperature));
+                        Log.d(TAG, "onChildChanged() returned temperature warning: " + Float.parseFloat(temperature));
                         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         builder.setDefaults(Notification.DEFAULT_ALL);
                         builder.setSmallIcon(R.drawable.wiki_logo)
                                 .setWhen(System.currentTimeMillis())
                                 .setContentTitle("Temperature Warning")
-                                .setContentText("The value of temperature is abnormal in " + hour + " o'clock.")
+                                .setContentText("The value of temperature is abnormal in " + hour + ":" + minute + ":" + second + ".")
                                 .setContentIntent(contentIntent);
 
                         Notification notification = builder.build();
@@ -225,12 +229,12 @@ public class MyService extends Service implements ChildEventListener {
                     }
                     else {
                         inNoticed3 = false;
-                        Log.d(TAG, "onChildAdded() returned temperature no warning: " + Float.parseFloat(temperature));
+                        Log.d(TAG, "onChildChanged() returned temperature no warning: " + Float.parseFloat(temperature));
                         manager.cancel(3);
                     }
                 }
                 else {
-                    Log.d(TAG, "onChildAdded() returned no data: " + inNoticed3);
+                    Log.d(TAG, "onChildChanged() returned no data: " + inNoticed3);
                 }
             }
             @Override
@@ -241,7 +245,7 @@ public class MyService extends Service implements ChildEventListener {
             public void onCancelled(DatabaseError databaseError) { }
         });
         //stopSelf();  // 停止Service
-        Log.d(TAG, "onChildAdded() returned out ");
+        Log.d(TAG, "addChildEventListener() returned out ");
         return START_STICKY;
     }
 

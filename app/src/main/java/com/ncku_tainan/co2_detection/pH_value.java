@@ -52,7 +52,7 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
     String second = sdf4.format(new java.util.Date());
     SimpleDateFormat sdf5 = new SimpleDateFormat("mm");
     String minute = sdf5.format(new java.util.Date());
-    private static final String TAG = "test";
+    private static final String TAG = "pH_value";
 
     ConnectivityManager cm;
     NetworkInfo NetInfo;
