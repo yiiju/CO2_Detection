@@ -135,6 +135,7 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
                 mySwipeRefreshLayout.setRefreshing(false);
                 checkNet();
                 getData();
+                initChart();
             }
         }, 3000);    // 3 second
     }
@@ -217,7 +218,7 @@ public class pH_value extends AppCompatActivity implements ChildEventListener {
         String chHour;
         String chSec;
         String chDate;
-        int numDataPoints = 100;
+        int numDataPoints = 50;
         if (NetInfo == null) {
             mChart.setNoDataText("Not connected to the network.");
         }

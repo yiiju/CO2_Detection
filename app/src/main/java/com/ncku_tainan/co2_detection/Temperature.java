@@ -211,7 +211,7 @@ public class Temperature extends AppCompatActivity implements ChildEventListener
         String chHour;
         String chMin;
         String chSec;
-        int numDataPoints = 100;
+        int numDataPoints = 50;
         if (NetInfo == null) {
             mChart.setNoDataText("Not connected to the network.");
         }
